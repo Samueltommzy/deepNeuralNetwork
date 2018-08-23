@@ -1,2 +1,2 @@
 # deepNeuralNetwork
-An implementation of deep Neural Network Model for number prediction using Tensorflow API
+An implementation of deep Neural Network Algorithm for basic image classification using tensorflow(keras API) on the fashion MNIST dataset
