@@ -1,70 +1,56 @@
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
- 
+from tensorflow import keras
+import numpy as np
+import matplotlib.pyplot as plt
 
-#one_hot is useful for multi-class classification
-DATASETS = input_data.read_data_sets("/tmp/data", one_hot=True)
+fashion_mnist = keras.datasets.fashion_mnist
+(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
+class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag','Ankle boot']
 
-#set number of nodes in each layer of the network
-LAYER_1, LAYER_2, LAYER_3 = 500, 500, 500
+train_images = train_images/255.0
+test_images = test_images/255.0
+# %matplotlib inline
+# plt.figure(figsize = (10,10))
+# for i in range(25):
+#     plt.subplot(5,5,i+1)
+#     plt.xticks([])
+#     plt.yticks([])
+#     plt.grid('off')
+#     plt.imshow(test_images[i], cmap = plt.cm.get_cmap())
+#     plt.xlabel(class_names[test_labels[i]])
+# plt.show()
 
-#set number of classes and batch size for our dataset
-NUMBER_OF_CLASSES, BATCH_SIZE = 10, 100
-X = tf.placeholder('float',[None, 784])
-Y = tf.placeholder('float')
 
-def model(dataset):
-    """
-    Model for neural network
-    """
-    #define weights and bias in each layer
-    layer1 = {'weights': tf.Variable(tf.random_normal([784, LAYER_1])),
-              'biases' : tf.Variable(tf.random_normal([LAYER_1]))
-              }
-    
-    layer2 = {'weights': tf.Variable(tf.random_normal([LAYER_1, LAYER_2])),
-              'biases' : tf.Variable(tf.random_normal([LAYER_2]))
-              }
-    
-    layer3 = {'weights': tf.Variable(tf.random_normal([LAYER_2, LAYER_3])),
-              'biases' : tf.Variable(tf.random_normal([LAYER_3]))
-              }
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape = (28,28)),
+    keras.layers.Dense(128, activation = (tf.nn.relu)),
+    keras.layers.Dense(20,activation=(tf.nn.softmax)),
+    keras.layers.Dense(10,  activation = (tf.nn.softmax))
+])
 
-    output_layer = {'weights': tf.Variable(tf.random_normal([LAYER_3, NUMBER_OF_CLASSES])),
-              'biases' : tf.Variable(tf.random_normal([NUMBER_OF_CLASSES]))
-              }
+print( model.weights)
+model.compile(optimizer = tf.train.AdamOptimizer(), loss = 'sparse_categorical_crossentropy', metrics=(['accuracy']))
+model.fit(train_images,train_labels,epochs=8)
 
-    layer_1_Value = tf.add((tf.matmul(dataset, layer1['weights'])), layer1['biases'])
-    layer_1_Value = tf.nn.relu(layer_1_Value)
+test_loss,test_accuracy = model.evaluate(test_images,test_labels)
+print("test accuracy...... : ", test_accuracy)
 
-    layer_2_Value = tf.add((tf.matmul (dataset, layer2['weights'])), layer2['biases'])
-    layer_2_Value = tf.nn.relu(layer_2_Value)
+predictions = model.predict(test_images)
+print("predictions...", predictions)
+print(np.argmax(predictions[18]))
+print(test_labels[18])
 
-    layer_3_Value = tf.add((tf.matmul (dataset, layer3['weights'])), layer3['biases'])
-    layer_3_Value = tf.nn.relu(layer_3_Value)
-    
-    output_Value = tf.add((tf.matmul (dataset, output_layer['weights'])), output_layer['biases'])
-    return output_Value
-
-def training(data):
-    """
-    function to train model from dataset
-    """
-    epochs = 5
-    prediction = model(data)
-    cost = tf.reduce_mean (tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=Y)) 
-    optimizer = tf.train.AdamOptimizer().minimize(cost)
-    with tf.Session as sess:
-        sess.run(tf.global_variables_initializer())
-        for epoch in range(epochs):
-            epoch_loss = 0
-            for _ in range(int(DATASETS.train.num_of_examples/BATCH_SIZE)):
-                epoch_x, epoch_y = DATASETS.train.next_batch(BATCH_SIZE)
-                _, c = sess.run([optimizer, cost], feed_dict={X: epoch_x, Y: epoch_y}) 
-                epoch_loss += c
-            print('Epoch', epoch, 'completed out of ', epochs, 'loss: ', epoch_loss)
-        correct = tf.equal(tf.argmax(prediction,1), tf.argmax(Y, 1))
-        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        print('Accuracy: ', accuracy.eval({X: DATASETS.test.images, Y: DATASETS.test.labels}))
-
-training(X)
+plt.figure(figsize=(10,10))
+for i in range(25):
+    plt.subplot(5,5,i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.imshow(test_images[i],cmap=plt.cm.get_cmap())
+    predicted_label = np.argmax(predictions[i])
+    true_label = test_labels[i]
+    if predicted_label == true_label:
+        color = 'green'
+    else:
+        color = "red"
+    plt.xlabel("{} ({})".format(class_names[predicted_label],class_names[true_label]),color=color)
+plt.show()
