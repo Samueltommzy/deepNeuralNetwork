@@ -1,0 +1,1 @@
+A three layer feedforward neural network that trains on a set of binary number input data and predict the binary number output
