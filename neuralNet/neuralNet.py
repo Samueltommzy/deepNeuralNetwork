@@ -19,7 +19,7 @@ class neuralNetwork():
         for iteraton in range(iterations):
             output = self.think(train_input)
             error = train_output - output
-            if iteraton % 1000 == 0:
+            if iteraton % 10000 == 0:
                 print("Error : " , str(mean(abs(error)) ))
             layer2_Delta = error * self.__sigmoid_derivative(self.think(train_input))
             layer1_error = dot(layer2_Delta,self.weight2.T)
@@ -32,9 +32,9 @@ if  __name__ == '__main__':
     neuralNet = neuralNetwork()
     print('Random starting weights :')
     print(neuralNet.weights)
-    train_set = array([[0, 0, 1], [1, 1, 1], [1, 0, 1], [0, 1, 1]])
+    train_set = array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 1]])
     output_set = array([[0, 1 , 1, 0]]).T
-    neuralNet.train_model(train_set, output_set, 10000)
+    neuralNet.train_model(train_set, output_set, 60000)
     print('New weight after training: ')
     print(neuralNet.weight2)
     print('considering new input [0,0,0] -> ?: ')
