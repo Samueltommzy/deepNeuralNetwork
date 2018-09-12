@@ -1,0 +1,1 @@
+A neural network to predict the magnitude of earthquake using Date,Time Longitude and Latitude features of the Earthquake_dataset downloaded from [Dataset](https://www.kaggle.com/usgs/earthquake-database)
