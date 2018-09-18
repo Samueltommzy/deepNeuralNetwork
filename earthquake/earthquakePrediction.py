@@ -11,7 +11,7 @@ quakeDataset = quakeDataset.reindex(np.random.permutation(quakeDataset.index))
 # print(quakeDataset.head())
 # print(" {} {}" .format( "info before parsing date" , quakeDataset.info()))
 quakeDataset['parsed_date'] = pd.to_datetime(quakeDataset['Date'] , format="%m/%d/%Y" , infer_datetime_format= True)
-input_features = quakeDataset[[ "Latitude", "Longitude" ]]
+input_features = quakeDataset[[ "parsed_date","Time" ,"Latitude", "Longitude" ]]
 target_feature = quakeDataset[["Magnitude"]]
 test_input  = input_features.head(12000)
 test_target = target_feature.head(12000)
